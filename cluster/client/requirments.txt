@@ -1,0 +1,4 @@
+websockets==4.0.1
+aiohttp==3.0.1
+requests==2.18.4
+asyncio==3.4.3

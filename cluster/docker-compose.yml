@@ -1,0 +1,71 @@
+version: '2'
+
+services:
+  
+  
+  control:
+    container_name: control_app
+
+    build:
+      context: .
+      dockerfile: ./control/Dockerfile
+    image: control:latest
+    user: root
+    command: /usr/bin/python3 /tmp/control/app.py
+    ports:
+      - "80:80"
+    networks:
+      - vpcbr
+
+  websocket:
+#    container_name: websocket_app
+      
+    links:
+      
+      - control
+
+    depends_on:
+      - control
+
+    build:
+      context: .
+      dockerfile: ./websocket/Dockerfile
+    image: websocket:latest
+    user: root
+    command: /usr/bin/python3 /tmp/websocket/app.py
+#    ports:
+#      - "8000:8000"
+    networks:
+      - vpcbr
+
+  client:
+#    container_name: client_app
+      
+    links:
+      
+      - control
+      - websocket
+
+    depends_on:
+      - control
+      - websocket
+
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile
+    image: client:latest
+    user: root
+    command: /usr/bin/python3 /tmp/client/app.py
+    networks:
+      - vpcbr
+
+
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/24
+         gateway: 10.5.0.1
+         aux_addresses:
+          control: 10.5.0.2
